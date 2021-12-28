@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<flow name="batchjobFlow" doc:id="6b41187c-1044-4472-adee-feb09eac2160" >
+		<http:listener doc:name="Listener" doc:id="74d590be-a214-41f8-b7fe-cceda8b9c5e1" config-ref="HTTP_Listener_config" path="/batch"/>
+		<set-payload value='#[[1,2,"a",4,5,"b","c",6]]' doc:name='[1,2,"a",4,5,"b","c",6]' doc:id="ffa963a8-6103-440e-97be-0ad5681110b0" />
+		<batch:job jobName="batchjobBatch_Job" doc:id="f8d5126c-d245-433d-85bd-39c0a2c4019d" maxFailedRecords="10">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="8a3d640d-94ef-4537-a9e5-5296d5b003a7" acceptPolicy="ALL">
+					<set-payload value="#[payload * 10]" doc:name="payload * 10" doc:id="f967d543-af23-4a93-b2a5-8cfe5d23741a" />
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="60715082-1099-412b-8c81-ccb5581b2472" size="2">
+						<logger level="INFO" doc:name="Logger" doc:id="651a72cf-1fd7-4f85-9562-ac40de607e04" message='#[payload]'/>
+					</batch:aggregator>
+				</batch:step>
+				<batch:step name="Batch_Step1" doc:id="d56cf0b0-ec59-4eef-9827-efe763742487" acceptPolicy="ONLY_FAILURES">
+					<logger level="INFO" doc:name="Logger" doc:id="22561ef0-d515-40ff-ab4b-e6fc43d01a19" message='#["the alphabet is " ++ payload]'/>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="7be568aa-e494-48c7-aa45-2f497c388db7" message="#[payload]"/>
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+</mule>
